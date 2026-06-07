@@ -1,9 +1,12 @@
 import { createContext, useContext, useEffect, useState } from 'react';
 import type { ReactNode } from 'react';
-import * as SecureStore from 'expo-secure-store';
 
-const AUTH_USER_KEY = 'auth.user';
-const AUTH_TOKEN_KEY = 'auth.token';
+import { AUTH_TOKEN_KEY, AUTH_USER_KEY } from '../constants/storage';
+import {
+  deleteAuthStorageItem,
+  getAuthStorageItem,
+  setAuthStorageItem,
+} from '../lib/authStorage';
 
 export type User = {
   name: string;
@@ -41,6 +44,20 @@ function createSessionToken(email: string) {
   return `${email}:${Date.now()}`;
 }
 
+function isStoredUser(value: unknown): value is StoredUser {
+  if (!value || typeof value !== 'object') return false;
+
+  const user = value as Partial<StoredUser>;
+
+  return Boolean(
+    user.name &&
+      user.lastname &&
+      user.phone &&
+      user.email &&
+      user.password
+  );
+}
+
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
   const [isLoading, setIsLoading] = useState(true);
@@ -49,13 +66,21 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     let isMounted = true;
 
     Promise.all([
-      SecureStore.getItemAsync(AUTH_TOKEN_KEY),
-      SecureStore.getItemAsync(AUTH_USER_KEY),
+      getAuthStorageItem(AUTH_TOKEN_KEY),
+      getAuthStorageItem(AUTH_USER_KEY),
     ])
-      .then(([token, storedUser]) => {
+      .then(async ([token, storedUser]) => {
         if (!isMounted || !token || !storedUser) return;
 
-        setUser(toPublicUser(JSON.parse(storedUser) as StoredUser));
+        const parsedUser = JSON.parse(storedUser) as unknown;
+
+        if (!isStoredUser(parsedUser)) {
+          await deleteAuthStorageItem(AUTH_TOKEN_KEY);
+          await deleteAuthStorageItem(AUTH_USER_KEY);
+          return;
+        }
+
+        setUser(toPublicUser(parsedUser));
       })
       .catch((error: unknown) => {
         console.warn('Failed to load auth session:', error);
@@ -75,19 +100,27 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     const storedUser = JSON.stringify(input);
     const token = createSessionToken(input.email);
 
-    await SecureStore.setItemAsync(AUTH_USER_KEY, storedUser);
-    await SecureStore.setItemAsync(AUTH_TOKEN_KEY, token);
+    await setAuthStorageItem(AUTH_USER_KEY, storedUser);
+    await setAuthStorageItem(AUTH_TOKEN_KEY, token);
     setUser(toPublicUser(input));
   };
 
   const login = async (email: string, password: string) => {
-    const storedUser = await SecureStore.getItemAsync(AUTH_USER_KEY);
+    const storedUser = await getAuthStorageItem(AUTH_USER_KEY);
 
     if (!storedUser) {
       throw new Error('No account found. Create one first.');
     }
 
-    const account = JSON.parse(storedUser) as StoredUser;
+    const parsedUser = JSON.parse(storedUser) as unknown;
+
+    if (!isStoredUser(parsedUser)) {
+      await deleteAuthStorageItem(AUTH_TOKEN_KEY);
+      await deleteAuthStorageItem(AUTH_USER_KEY);
+      throw new Error('No account found. Create one first.');
+    }
+
+    const account = parsedUser;
 
     if (
       account.email.trim().toLowerCase() !== email.trim().toLowerCase() ||
@@ -96,12 +129,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       throw new Error('Email or password is incorrect.');
     }
 
-    await SecureStore.setItemAsync(AUTH_TOKEN_KEY, createSessionToken(email));
+    await setAuthStorageItem(AUTH_TOKEN_KEY, createSessionToken(email));
     setUser(toPublicUser(account));
   };
 
   const logout = async () => {
-    await SecureStore.deleteItemAsync(AUTH_TOKEN_KEY);
+    await deleteAuthStorageItem(AUTH_TOKEN_KEY);
     setUser(null);
   };
 
