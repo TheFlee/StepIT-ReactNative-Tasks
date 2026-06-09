@@ -33,7 +33,7 @@ const REGISTER_ROUTE = '/register' as Href;
 
 export default function Login() {
   const { isDarkMode } = useTheme();
-  const { user, isLoading, login } = useAuth();
+  const { user, isLoading, login, skipAuthorization } = useAuth();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [errors, setErrors] = useState<LoginErrors>(initialErrors);
@@ -69,6 +69,11 @@ export default function Login() {
         form: error instanceof Error ? error.message : 'Could not sign in.',
       }));
     }
+  };
+
+  const handleSkip = async () => {
+    await skipAuthorization();
+    router.replace(HOME_ROUTE);
   };
 
   return (
@@ -168,6 +173,20 @@ export default function Login() {
                 }`}
               >
                 Create account
+              </Text>
+            </TouchableOpacity>
+
+            <TouchableOpacity
+              activeOpacity={0.7}
+              onPress={handleSkip}
+              className="py-3 items-center"
+            >
+              <Text
+                className={`text-sm font-medium ${
+                  isDarkMode ? 'text-emerald-300' : 'text-emerald-600'
+                }`}
+              >
+                Skip authorization
               </Text>
             </TouchableOpacity>
           </View>

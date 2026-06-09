@@ -1,0 +1,12 @@
+Starting project at D:\StudyRelated\StepIT\ReactNative\4.input-app
+Using src/app as the root directory for Expo Router.
+React Compiler enabled
+Starting Metro Bundler
+
+Waiting on http://localhost:8081
+Logs for your project will appear below.
+Web Bundled 5875ms node_modules\expo-router\entry.js (1492 modules)
+λ Bundled 6058ms node_modules\expo\node_modules\@expo\cli\node_modules\@expo\router-server\node\render.js (1609 modules)
+Android Bundled 1326ms node_modules\expo-router\entry.js (1876 modules)
+Android Bundled 43ms node_modules\expo-router\entry.js (1 module)
+Android Bundled 577ms node_modules\expo-router\entry.js (1 module)

@@ -27,6 +27,7 @@ type AuthContextValue = {
   login: (email: string, password: string) => Promise<void>;
   logout: () => Promise<void>;
   register: (input: RegisterInput) => Promise<void>;
+  skipAuthorization: () => Promise<void>;
 };
 
 const AuthContext = createContext<AuthContextValue | null>(null);
@@ -105,6 +106,20 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setUser(toPublicUser(input));
   };
 
+  const skipAuthorization = async () => {
+    const guestUser: StoredUser = {
+      name: 'Guest',
+      lastname: 'User',
+      phone: 'Not provided',
+      email: 'guest@example.com',
+      password: 'guest',
+    };
+
+    await setAuthStorageItem(AUTH_USER_KEY, JSON.stringify(guestUser));
+    await setAuthStorageItem(AUTH_TOKEN_KEY, createSessionToken(guestUser.email));
+    setUser(toPublicUser(guestUser));
+  };
+
   const login = async (email: string, password: string) => {
     const storedUser = await getAuthStorageItem(AUTH_USER_KEY);
 
@@ -140,7 +155,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   return (
     <AuthContext.Provider
-      value={{ user, isLoading, login, logout, register }}
+      value={{ user, isLoading, login, logout, register, skipAuthorization }}
     >
       {children}
     </AuthContext.Provider>

@@ -190,7 +190,7 @@ function StepIndicator({
 
 export default function Register() {
   const { isDarkMode } = useTheme();
-  const { user, isLoading, register } = useAuth();
+  const { user, isLoading, register, skipAuthorization } = useAuth();
   const [step, setStep] = useState(1);
   const [formData, setFormData] = useState<FormData>(initialFormData);
   const [errors, setErrors] = useState<FormErrors>(initialErrors);
@@ -263,6 +263,11 @@ export default function Register() {
     if (!validate(2)) return;
 
     await register(formData);
+    router.replace(HOME_ROUTE);
+  };
+
+  const handleSkip = async () => {
+    await skipAuthorization();
     router.replace(HOME_ROUTE);
   };
 
@@ -412,6 +417,20 @@ export default function Register() {
                 </Text>
               </TouchableOpacity>
             )}
+
+            <TouchableOpacity
+              activeOpacity={0.7}
+              onPress={handleSkip}
+              className="py-3 items-center"
+            >
+              <Text
+                className={`text-sm font-medium ${
+                  isDarkMode ? 'text-emerald-300' : 'text-emerald-600'
+                }`}
+              >
+                Skip authorization
+              </Text>
+            </TouchableOpacity>
           </View>
         </ScrollView>
       </KeyboardAvoidingView>
