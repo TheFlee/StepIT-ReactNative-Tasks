@@ -16,6 +16,7 @@ function AppStack() {
       <StatusBar style={isDarkMode ? 'light' : 'dark'} />
       <Stack screenOptions={{ headerShown: false }}>
         <Stack.Screen name="index" />
+        <Stack.Screen name="edit-user" />
         <Stack.Screen name="(auth)" />
       </Stack>
     </>
