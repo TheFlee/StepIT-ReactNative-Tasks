@@ -4,16 +4,20 @@ import Ionicons from '@expo/vector-icons/Ionicons';
 import { FlashList } from '@shopify/flash-list';
 import { useRouter } from 'expo-router';
 import { useSecureStorage } from '@/hooks/useSecureStorage';
-import { useAsyncStorage } from '@/hooks/useAsyncStorage';
+import { useTheme } from '@/context/DarkModeContext';
 
-const InfoRow = ({ icon, label, value }: { icon: string; label: string; value: string }) => (
-  <View className="flex-row items-center py-2.5 gap-3">
-    <View className="w-9 h-9 rounded-[10px] bg-orange-50 items-center justify-center">
+const InfoRow = ({
+  icon, label, value, text, secondary,
+}: {
+  icon: string; label: string; value: string; text: string; secondary: string;
+}) => (
+  <View style={{ flexDirection: 'row', alignItems: 'center', paddingVertical: 10, gap: 12 }}>
+    <View style={{ width: 36, height: 36, borderRadius: 10, backgroundColor: '#FFF7ED', alignItems: 'center', justifyContent: 'center' }}>
       <Ionicons name={icon as any} size={18} color="#F97316" />
     </View>
-    <View className="flex-1">
-      <Text className="text-xs text-muted mb-0.5">{label}</Text>
-      <Text className="text-sm font-semibold text-primary">{value}</Text>
+    <View style={{ flex: 1 }}>
+      <Text style={{ fontSize: 11, color: secondary, marginBottom: 2 }}>{label}</Text>
+      <Text style={{ fontSize: 13, fontWeight: '600', color: text }}>{value}</Text>
     </View>
   </View>
 );
@@ -23,7 +27,7 @@ export default function Profile() {
   const [userInfo, , deleteUserInfo] = useSecureStorage<{
     name: string; surname: string; phone?: string; email?: string;
   }>('userInfo');
-  const [darkmode, setDarkmode] = useAsyncStorage<boolean>('darkmode', false);
+  const { darkmode, setDarkmode, bg, card, text, textSecondary, divider } = useTheme();
 
   const rows = [
     { icon: 'person-outline', label: 'Full Name', value: `${userInfo?.name ?? ''} ${userInfo?.surname ?? ''}`.trim() },
@@ -37,87 +41,83 @@ export default function Profile() {
   };
 
   return (
-    <View className="flex-1">
-      <View className="bg-primary pt-14 pb-8 items-center">
-        <View className="w-[72px] h-[72px] rounded-full bg-accent items-center justify-center mb-3">
-          <Text className="text-[28px] font-bold text-white">
+    <View style={{ flex: 1, backgroundColor: bg }}>
+      <View style={{ backgroundColor: '#1E2460', paddingTop: 56, paddingBottom: 32, alignItems: 'center' }}>
+        <View style={{ width: 72, height: 72, borderRadius: 36, backgroundColor: '#F97316', alignItems: 'center', justifyContent: 'center', marginBottom: 12 }}>
+          <Text style={{ fontSize: 28, fontWeight: '700', color: 'white' }}>
             {(userInfo?.name?.[0] ?? 'G').toUpperCase()}
           </Text>
         </View>
-        <Text className="text-xl font-bold text-white mb-1">
+        <Text style={{ fontSize: 19, fontWeight: '700', color: 'white', marginBottom: 4 }}>
           {userInfo?.name ?? 'Guest'} {userInfo?.surname ?? ''}
         </Text>
-        <Text className="text-sm text-white/70">{userInfo?.email ?? ''}</Text>
+        <Text style={{ fontSize: 13, color: 'rgba(255,255,255,0.65)' }}>{userInfo?.email ?? ''}</Text>
       </View>
 
-      <View className="flex-1 bg-app-bg p-4">
-        <View
-          className="bg-white rounded-[20px] p-4"
-          style={{ shadowColor: '#000', shadowOpacity: 0.06, shadowRadius: 8, elevation: 2 }}
-        >
-          <Text className="text-xs font-bold text-muted uppercase tracking-wide mb-3">Account Info</Text>
+      <View style={{ flex: 1, backgroundColor: bg, padding: 16 }}>
+        {/* Account info card */}
+        <View style={{ backgroundColor: card, borderRadius: 20, padding: 16, shadowColor: '#000', shadowOpacity: 0.06, shadowRadius: 8, elevation: 2 }}>
+          <Text style={{ fontSize: 11, fontWeight: '700', color: textSecondary, textTransform: 'uppercase', letterSpacing: 0.8, marginBottom: 8 }}>Account Info</Text>
           <FlashList
             data={rows}
             keyExtractor={item => item.label}
-            renderItem={({ item }) => <InfoRow {...item} />}
+            renderItem={({ item }) => <InfoRow {...item} text={text} secondary={textSecondary} />}
             scrollEnabled={false}
           />
         </View>
 
-        <View
-          className="bg-white rounded-[20px] p-4 mt-3"
-          style={{ shadowColor: '#000', shadowOpacity: 0.06, shadowRadius: 8, elevation: 2 }}
-        >
-          <View className="flex-row items-center py-3 gap-3">
-            <View className="w-9 h-9 rounded-[10px] bg-orange-50 items-center justify-center">
+        {/* Dark mode toggle */}
+        <View style={{ backgroundColor: card, borderRadius: 20, padding: 16, marginTop: 12, shadowColor: '#000', shadowOpacity: 0.06, shadowRadius: 8, elevation: 2 }}>
+          <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12 }}>
+            <View style={{ width: 36, height: 36, borderRadius: 10, backgroundColor: '#FFF7ED', alignItems: 'center', justifyContent: 'center' }}>
               <Ionicons name="moon-outline" size={18} color="#F97316" />
             </View>
-            <Text className="flex-1 text-base font-semibold text-primary">Dark Mode</Text>
+            <Text style={{ flex: 1, fontSize: 15, fontWeight: '600', color: text }}>Dark Mode</Text>
             <Switch
               value={darkmode}
               onValueChange={setDarkmode}
-              trackColor={{ false: '#E5E7EB', true: '#1E2460' }}
-              thumbColor={darkmode ? '#F97316' : '#FFFFFF'}
+              trackColor={{ false: '#E5E7EB', true: '#F97316' }}
+              thumbColor="#FFFFFF"
             />
           </View>
         </View>
 
-        <View
-          className="bg-white rounded-[20px] mt-3"
-          style={{ shadowColor: '#000', shadowOpacity: 0.06, shadowRadius: 8, elevation: 2 }}
-        >
+        {/* Actions card */}
+        <View style={{ backgroundColor: card, borderRadius: 20, marginTop: 12, shadowColor: '#000', shadowOpacity: 0.06, shadowRadius: 8, elevation: 2 }}>
           <TouchableOpacity
-            className="flex-row items-center px-4 py-3 gap-3"
+            style={{ flexDirection: 'row', alignItems: 'center', paddingHorizontal: 16, paddingVertical: 14, gap: 12 }}
             onPress={() => router.push('/editinfo')}
             activeOpacity={0.8}
           >
-            <View className="w-9 h-9 rounded-[10px] bg-orange-50 items-center justify-center">
+            <View style={{ width: 36, height: 36, borderRadius: 10, backgroundColor: '#FFF7ED', alignItems: 'center', justifyContent: 'center' }}>
               <Ionicons name="create-outline" size={18} color="#F97316" />
             </View>
-            <Text className="flex-1 text-base font-semibold text-primary">Edit Profile</Text>
-            <Ionicons name="chevron-forward" size={16} color="#6B7280" />
+            <Text style={{ flex: 1, fontSize: 15, fontWeight: '600', color: text }}>Edit Profile</Text>
+            <Ionicons name="chevron-forward" size={16} color={textSecondary} />
           </TouchableOpacity>
 
+          <View style={{ height: 1, backgroundColor: divider, marginHorizontal: 16 }} />
+
           <TouchableOpacity
-            className="flex-row items-center px-4 py-3 gap-3 border-t border-gray-100"
+            style={{ flexDirection: 'row', alignItems: 'center', paddingHorizontal: 16, paddingVertical: 14, gap: 12 }}
             onPress={() => router.push('/addcart')}
             activeOpacity={0.8}
           >
-            <View className="w-9 h-9 rounded-[10px] bg-orange-50 items-center justify-center">
+            <View style={{ width: 36, height: 36, borderRadius: 10, backgroundColor: '#FFF7ED', alignItems: 'center', justifyContent: 'center' }}>
               <Ionicons name="card-outline" size={18} color="#F97316" />
             </View>
-            <Text className="flex-1 text-base font-semibold text-primary">Add Card</Text>
-            <Ionicons name="chevron-forward" size={16} color="#6B7280" />
+            <Text style={{ flex: 1, fontSize: 15, fontWeight: '600', color: text }}>Add Card</Text>
+            <Ionicons name="chevron-forward" size={16} color={textSecondary} />
           </TouchableOpacity>
         </View>
 
         <TouchableOpacity
-          className="flex-row items-center justify-center gap-2 mt-5 py-4 bg-red-50 rounded-xl"
+          style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 8, marginTop: 20, paddingVertical: 16, backgroundColor: darkmode ? '#2C1010' : '#FEF2F2', borderRadius: 14 }}
           onPress={handleLogout}
           activeOpacity={0.85}
         >
           <Ionicons name="log-out-outline" size={18} color="#EF4444" />
-          <Text className="text-base font-semibold text-danger">Sign Out</Text>
+          <Text style={{ fontSize: 15, fontWeight: '600', color: '#EF4444' }}>Sign Out</Text>
         </TouchableOpacity>
       </View>
     </View>

@@ -1,20 +1,19 @@
 import Ionicons from '@expo/vector-icons/Ionicons';
 import { Tabs } from 'expo-router';
 import React from 'react';
-import { useAsyncStorage } from '@/hooks/useAsyncStorage';
-import { COLORS } from '@/constants/colors';
+import { useTheme } from '@/context/DarkModeContext';
 
 export default function Layout() {
-  const [darkmode] = useAsyncStorage<boolean>('darkmode', false);
+  const { tabBar, tabActive, tabInactive } = useTheme();
 
   return (
     <Tabs
       screenOptions={{
         headerShown: false,
-        tabBarActiveTintColor: COLORS.primary,
-        tabBarInactiveTintColor: COLORS.textSecondary,
+        tabBarActiveTintColor: tabActive,
+        tabBarInactiveTintColor: tabInactive,
         tabBarStyle: {
-          backgroundColor: darkmode ? COLORS.darkSurface : COLORS.surface,
+          backgroundColor: tabBar,
           borderTopWidth: 0,
           shadowColor: '#000',
           shadowOpacity: 0.1,
@@ -31,7 +30,7 @@ export default function Layout() {
         options={{
           title: 'Home',
           tabBarIcon: ({ color, size }) => (
-            <Ionicons name="person-outline" size={size} color={color} />
+            <Ionicons name="home-outline" size={size} color={color} />
           ),
         }}
       />
@@ -49,7 +48,7 @@ export default function Layout() {
         options={{
           title: 'Account',
           tabBarIcon: ({ color, size }) => (
-            <Ionicons name="cash-outline" size={size} color={color} />
+            <Ionicons name="person-outline" size={size} color={color} />
           ),
         }}
       />

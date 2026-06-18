@@ -2,6 +2,7 @@ import { View, TextInput, TouchableOpacity, Text, ScrollView } from 'react-nativ
 import React, { useState } from 'react';
 import { useRouter } from 'expo-router';
 import { useSecureStorage } from '@/hooks/useSecureStorage';
+import { useTheme } from '@/context/DarkModeContext';
 
 const STEPS = ['Phone', 'Email', 'Password'];
 
@@ -14,6 +15,7 @@ export default function Register() {
   const [step, setStep] = useState(1);
   const [formData, setFormData] = useState({ phone: '', email: '', password: '', confirmPassword: '' });
   const [errors, setErrors] = useState<Record<string, string>>({});
+  const { bg, card, text, inputBg, inputBorder } = useTheme();
 
   const validate = () => {
     const e: Record<string, string> = {};
@@ -36,7 +38,7 @@ export default function Register() {
   };
 
   return (
-    <ScrollView className="flex-1 bg-app-bg" contentContainerStyle={{ flexGrow: 1, padding: 24 }} keyboardShouldPersistTaps="handled">
+    <ScrollView style={{ flex: 1, backgroundColor: bg }} contentContainerStyle={{ flexGrow: 1, padding: 24 }} keyboardShouldPersistTaps="handled">
       <View className="flex-row items-center mb-8 mt-2">
         <TouchableOpacity
           onPress={() => step > 1 ? setStep(s => s - 1) : router.back()}
@@ -58,15 +60,12 @@ export default function Register() {
         ))}
       </View>
 
-      <View
-        className="bg-white rounded-[20px] p-6"
-        style={{ shadowColor: '#000', shadowOpacity: 0.08, shadowRadius: 8, elevation: 3 }}
-      >
+      <View style={{ backgroundColor: card, borderRadius: 20, padding: 24, shadowColor: '#000', shadowOpacity: 0.08, shadowRadius: 8, elevation: 3 }}>
         {step === 1 && (
           <>
-            <Text className="text-sm font-semibold text-primary mb-1.5">Phone Number</Text>
+            <Text style={{ fontSize: 13, fontWeight: '600', color: text, marginBottom: 6 }}>Phone Number</Text>
             <TextInput
-              className={`border-[1.5px] ${errors.phone ? 'border-danger' : 'border-gray-200'} rounded-xl px-4 py-[14px] text-base text-primary`}
+              style={{ borderWidth: 1.5, borderColor: errors.phone ? '#EF4444' : inputBorder, borderRadius: 12, paddingHorizontal: 16, paddingVertical: 14, fontSize: 15, color: text, backgroundColor: inputBg }}
               placeholder="+1 234 567 8900"
               placeholderTextColor="#6B7280"
               keyboardType="phone-pad"
@@ -79,9 +78,9 @@ export default function Register() {
 
         {step === 2 && (
           <>
-            <Text className="text-sm font-semibold text-primary mb-1.5">Email Address</Text>
+            <Text style={{ fontSize: 13, fontWeight: '600', color: text, marginBottom: 6 }}>Email Address</Text>
             <TextInput
-              className={`border-[1.5px] ${errors.email ? 'border-danger' : 'border-gray-200'} rounded-xl px-4 py-[14px] text-base text-primary`}
+              style={{ borderWidth: 1.5, borderColor: errors.email ? '#EF4444' : inputBorder, borderRadius: 12, paddingHorizontal: 16, paddingVertical: 14, fontSize: 15, color: text, backgroundColor: inputBg }}
               placeholder="you@example.com"
               placeholderTextColor="#6B7280"
               keyboardType="email-address"
@@ -95,9 +94,9 @@ export default function Register() {
 
         {step === 3 && (
           <>
-            <Text className="text-sm font-semibold text-primary mb-1.5">Password</Text>
+            <Text style={{ fontSize: 13, fontWeight: '600', color: text, marginBottom: 6 }}>Password</Text>
             <TextInput
-              className={`border-[1.5px] ${errors.password ? 'border-danger' : 'border-gray-200'} rounded-xl px-4 py-[14px] text-base text-primary`}
+              style={{ borderWidth: 1.5, borderColor: errors.password ? '#EF4444' : inputBorder, borderRadius: 12, paddingHorizontal: 16, paddingVertical: 14, fontSize: 15, color: text, backgroundColor: inputBg }}
               placeholder="Min 6 characters"
               placeholderTextColor="#6B7280"
               secureTextEntry
@@ -106,9 +105,9 @@ export default function Register() {
             />
             {errors.password ? <Text className="text-xs text-danger mt-1">{errors.password}</Text> : null}
 
-            <Text className="text-sm font-semibold text-primary mb-1.5 mt-4">Confirm Password</Text>
+            <Text style={{ fontSize: 13, fontWeight: '600', color: text, marginBottom: 6, marginTop: 16 }}>Confirm Password</Text>
             <TextInput
-              className={`border-[1.5px] ${errors.confirmPassword ? 'border-danger' : 'border-gray-200'} rounded-xl px-4 py-[14px] text-base text-primary`}
+              style={{ borderWidth: 1.5, borderColor: errors.confirmPassword ? '#EF4444' : inputBorder, borderRadius: 12, paddingHorizontal: 16, paddingVertical: 14, fontSize: 15, color: text, backgroundColor: inputBg }}
               placeholder="Repeat password"
               placeholderTextColor="#6B7280"
               secureTextEntry
@@ -120,11 +119,11 @@ export default function Register() {
         )}
 
         <TouchableOpacity
-          className="mt-7 bg-primary rounded-xl py-4 items-center"
+          style={{ marginTop: 28, backgroundColor: '#1E2460', borderRadius: 12, paddingVertical: 16, alignItems: 'center' }}
           onPress={handleNext}
           activeOpacity={0.85}
         >
-          <Text className="text-white text-base font-bold">{step === 3 ? 'Finish' : 'Next'}</Text>
+          <Text style={{ color: 'white', fontSize: 15, fontWeight: '700' }}>{step === 3 ? 'Finish' : 'Next'}</Text>
         </TouchableOpacity>
       </View>
     </ScrollView>

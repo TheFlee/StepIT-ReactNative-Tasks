@@ -3,6 +3,7 @@ import React, { useEffect, useState } from 'react';
 import { useRouter } from 'expo-router';
 import Ionicons from '@expo/vector-icons/Ionicons';
 import { useSecureStorage } from '@/hooks/useSecureStorage';
+import { useTheme } from '@/context/DarkModeContext';
 
 interface UserInfo {
   name: string;
@@ -17,6 +18,11 @@ export default function EditInfo() {
   const [userInfo, setUserInfo] = useSecureStorage<UserInfo>('userInfo');
   const [formData, setFormData] = useState<UserInfo>({ name: '', surname: '', phone: '', email: '' });
   const [errors, setErrors] = useState<Partial<UserInfo>>({});
+  const { bg, card, text, inputBg, inputBorder } = useTheme();
+  const bgColor = bg;
+  const cardBg = card;
+  const textColor = text;
+  const borderColor = inputBorder;
 
   useEffect(() => {
     if (userInfo) setFormData(userInfo);
@@ -52,7 +58,7 @@ export default function EditInfo() {
   ];
 
   return (
-    <ScrollView className="flex-1 bg-app-bg" keyboardShouldPersistTaps="handled">
+    <ScrollView style={{ flex: 1, backgroundColor: bgColor }} keyboardShouldPersistTaps="handled">
       <View className="bg-primary pt-[52px] pb-5 px-5 flex-row items-center gap-3">
         <TouchableOpacity onPress={() => router.back()} className="p-1">
           <Ionicons name="arrow-back" size={22} color="white" />
@@ -61,14 +67,22 @@ export default function EditInfo() {
       </View>
 
       <View
-        className="bg-white m-4 rounded-[20px] p-5"
-        style={{ shadowColor: '#000', shadowOpacity: 0.06, shadowRadius: 8, elevation: 2 }}
+        style={{ backgroundColor: cardBg, margin: 16, borderRadius: 20, padding: 20, shadowColor: '#000', shadowOpacity: 0.06, shadowRadius: 8, elevation: 2 }}
       >
         {fields.map(f => (
-          <View key={f.key} className="mb-4">
-            <Text className="text-xs font-semibold text-primary mb-1.5">{f.label}</Text>
+          <View key={f.key} style={{ marginBottom: 16 }}>
+            <Text style={{ fontSize: 12, fontWeight: '600', color: textColor, marginBottom: 6 }}>{f.label}</Text>
             <TextInput
-              className={`border-[1.5px] ${errors[f.key] ? 'border-danger' : 'border-gray-200'} rounded-xl px-4 py-[14px] text-base text-primary`}
+              style={{
+                borderWidth: 1.5,
+                borderColor: errors[f.key] ? '#EF4444' : borderColor,
+                borderRadius: 12,
+                paddingHorizontal: 16,
+                paddingVertical: 14,
+                fontSize: 15,
+                color: textColor,
+                backgroundColor: inputBg,
+              }}
               placeholder={f.placeholder}
               placeholderTextColor="#6B7280"
               keyboardType={f.keyboard ?? 'default'}

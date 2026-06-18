@@ -3,6 +3,8 @@ import React, { useState } from 'react';
 import { useRouter } from 'expo-router';
 import Ionicons from '@expo/vector-icons/Ionicons';
 import { useAsyncStorage } from '@/hooks/useAsyncStorage';
+import { useTheme } from '@/context/DarkModeContext';
+import VisaCard from '@/components/VisaCard';
 
 interface CardInfo {
   number: string;
@@ -21,6 +23,10 @@ export default function AddCart() {
   const [, setCardInfo] = useAsyncStorage<CardInfo>('cardInfo', DEFAULT_CARD);
   const [form, setForm] = useState<CardInfo>(DEFAULT_CARD);
   const [errors, setErrors] = useState<Partial<CardInfo>>({});
+  const { bg, card, text, inputBg, inputBorder } = useTheme();
+  const bgColor = bg;
+  const textColor = text;
+  const borderColor = inputBorder;
 
   const validate = () => {
     const e: Partial<CardInfo> = {};
@@ -44,7 +50,7 @@ export default function AddCart() {
     : '•••• •••• •••• ••••';
 
   return (
-    <View className="flex-1 bg-app-bg">
+    <View style={{ flex: 1, backgroundColor: bgColor }}>
       <View className="bg-primary pt-[52px] pb-4 px-5 flex-row items-center gap-3">
         <TouchableOpacity onPress={() => router.back()} className="p-1">
           <Ionicons name="arrow-back" size={22} color="white" />
@@ -53,28 +59,19 @@ export default function AddCart() {
       </View>
 
       {/* Card preview */}
-      <View
-        className="bg-primary mx-5 mt-5 rounded-[20px] p-6 pb-5 overflow-hidden"
-        style={{ shadowColor: '#000', shadowOpacity: 0.2, shadowRadius: 12, elevation: 6 }}
-      >
-        <View className="absolute top-0 left-0 right-0 h-2 bg-accent rounded-t-[20px]" />
-        <Text className="text-white/60 text-xs mb-2 mt-2">Current Balance</Text>
-        <Text className="text-white text-xl font-bold tracking-widest mb-6">
-          {maskedNumber}
-        </Text>
-        <View className="flex-row items-end">
-          <Text className="flex-1 text-white text-sm font-semibold">
-            {form.holder || 'Card Holder'}
-          </Text>
-          <Text className="text-white/80 text-sm mr-3">{form.expiry || 'MM/YY'}</Text>
-          <Text className="text-white text-lg font-extrabold italic">VISA</Text>
-        </View>
+      <View style={{ marginHorizontal: 20, marginTop: 20, shadowColor: '#1E2460', shadowOpacity: 0.35, shadowRadius: 20, elevation: 12 }}>
+        <VisaCard
+          cardNumber={maskedNumber}
+          holder={form.holder || 'Card Holder'}
+          expiry={form.expiry || 'MM/YY'}
+          balance="New Card"
+        />
       </View>
 
-      <View className="p-5">
-        <Text className="text-xs font-semibold text-primary mb-1.5 mt-3.5">Card Number</Text>
+      <View style={{ padding: 20 }}>
+        <Text style={{ fontSize: 12, fontWeight: '600', color: textColor, marginBottom: 6, marginTop: 14 }}>Card Number</Text>
         <TextInput
-          className={`bg-white border-[1.5px] ${errors.number ? 'border-danger' : 'border-gray-200'} rounded-xl px-4 py-[14px] text-base text-primary`}
+          style={{ backgroundColor: inputBg, borderWidth: 1.5, borderColor: errors.number ? '#EF4444' : borderColor, borderRadius: 12, paddingHorizontal: 16, paddingVertical: 14, fontSize: 15, color: textColor }}
           placeholder="1234 5678 9012 3456"
           placeholderTextColor="#6B7280"
           keyboardType="numeric"
@@ -84,9 +81,9 @@ export default function AddCart() {
         />
         {errors.number ? <Text className="text-xs text-danger mt-1">{errors.number}</Text> : null}
 
-        <Text className="text-xs font-semibold text-primary mb-1.5 mt-3.5">Card Holder</Text>
+        <Text style={{ fontSize: 12, fontWeight: '600', color: textColor, marginBottom: 6, marginTop: 14 }}>Card Holder</Text>
         <TextInput
-          className={`bg-white border-[1.5px] ${errors.holder ? 'border-danger' : 'border-gray-200'} rounded-xl px-4 py-[14px] text-base text-primary`}
+          style={{ backgroundColor: inputBg, borderWidth: 1.5, borderColor: errors.holder ? '#EF4444' : borderColor, borderRadius: 12, paddingHorizontal: 16, paddingVertical: 14, fontSize: 15, color: textColor }}
           placeholder="Full Name"
           placeholderTextColor="#6B7280"
           value={form.holder}
@@ -94,11 +91,11 @@ export default function AddCart() {
         />
         {errors.holder ? <Text className="text-xs text-danger mt-1">{errors.holder}</Text> : null}
 
-        <View className="flex-row gap-3">
-          <View className="flex-1">
-            <Text className="text-xs font-semibold text-primary mb-1.5 mt-3.5">Expiry</Text>
+        <View style={{ flexDirection: 'row', gap: 12 }}>
+          <View style={{ flex: 1 }}>
+            <Text style={{ fontSize: 12, fontWeight: '600', color: textColor, marginBottom: 6, marginTop: 14 }}>Expiry</Text>
             <TextInput
-              className={`bg-white border-[1.5px] ${errors.expiry ? 'border-danger' : 'border-gray-200'} rounded-xl px-4 py-[14px] text-base text-primary`}
+              style={{ backgroundColor: inputBg, borderWidth: 1.5, borderColor: errors.expiry ? '#EF4444' : borderColor, borderRadius: 12, paddingHorizontal: 16, paddingVertical: 14, fontSize: 15, color: textColor }}
               placeholder="MM/YY"
               placeholderTextColor="#6B7280"
               keyboardType="numeric"
@@ -112,10 +109,10 @@ export default function AddCart() {
             />
             {errors.expiry ? <Text className="text-xs text-danger mt-1">{errors.expiry}</Text> : null}
           </View>
-          <View className="flex-1">
-            <Text className="text-xs font-semibold text-primary mb-1.5 mt-3.5">CVV</Text>
+          <View style={{ flex: 1 }}>
+            <Text style={{ fontSize: 12, fontWeight: '600', color: textColor, marginBottom: 6, marginTop: 14 }}>CVV</Text>
             <TextInput
-              className={`bg-white border-[1.5px] ${errors.cvv ? 'border-danger' : 'border-gray-200'} rounded-xl px-4 py-[14px] text-base text-primary`}
+              style={{ backgroundColor: inputBg, borderWidth: 1.5, borderColor: errors.cvv ? '#EF4444' : borderColor, borderRadius: 12, paddingHorizontal: 16, paddingVertical: 14, fontSize: 15, color: textColor }}
               placeholder="•••"
               placeholderTextColor="#6B7280"
               keyboardType="numeric"
